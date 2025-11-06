@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansbound Network School - Future-Ready Cyber Dashboard</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Configure Tailwind for custom theme and font --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
+                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
+                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
+                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
+                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'neon-pulse': {
+                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
+                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
+                        },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Base Styles (Dark Mode) */
+        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
+        .content-hidden { opacity: 0; }
+        
+        /* Custom Scrollbar */
+        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
+        body::-webkit-scrollbar-track { background-color: #1e293b; }
+
+        /* Network Background Container */
+        .network-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -20;
+        }
+
+        /* Canvas element (for Hex Grid and Data Stream) */
+        #network-canvas-drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.6; /* Slightly subdued background */
+        }
+        
+        /* Console Card Styling (Cyber look) */
+        .console-card {
+            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
+            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
+        }
+        
+        /* Node Styling - Pure CSS glowing dots */
+        .node {
+            position: absolute;
+            border-radius: 50%;
+            will-change: transform, left, top;
+            z-index: -1; 
+            opacity: 0.9;
+        }
+
+        .node.core {
+            background-color: var(--tw-colors-cyber-blue);
+            width: 14px; height: 14px;
+            box-shadow: 0 0 5px var(--tw-colors-cyber-blue), 0 0 10px var(--tw-colors-cyber-blue);
+            animation: neon-pulse 1.8s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        .node.satellite {
+            background-color: var(--tw-colors-cyber-cyan);
+            width: 5px; height: 5px;
+            box-shadow: 0 0 8px var(--tw-colors-cyber-cyan);
+            opacity: 0.9;
+            z-index: 0;
+        }
+
+        /* Call To Action Button (Cyan Glow) */
+        .cta-button {
+            background-color: var(--tw-colors-cyber-cyan);
+            color: var(--tw-colors-bg-dark);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .cta-button:hover {
+            background-color: #22d3ee; 
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Feature List Styling */
+        .feature-list li {
+            border-left: 3px solid var(--tw-colors-cyber-cyan);
+            background-color: rgba(6, 182, 212, 0.05);
+            transition: all 0.3s;
+        }
+        .feature-list li:hover {
+            background-color: rgba(6, 182, 212, 0.15);
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+
+    <!-- Network Infrastructure Visualization Container -->
+    <div id="network-canvas" class="network-bg-canvas">
+        <canvas id="network-canvas-drawing"></canvas>
+        <!-- Nodes are rendered here by JavaScript -->
+    </div>
+
+    <!-- Header & Navigation Bar (Minimalist Dark) -->
+    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Logo & Company Name (Left Top) - UPDATED -->
+                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
+                        
+                        <!-- Logo Placeholder: Use a placeholder or a default icon -->
+                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
+                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
+                        </div>
+                        
+                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
+                            SANSBOUND 
+                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Menu & CTA -->
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
+                            <!-- HOME LINK ADDED -->
+                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
+                            <!-- COURSES LINK UPDATED -->
+                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Courses</a>
+                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Industrial Visit</a>
+                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Upcoming Batch</a>
+                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Internship</a>
+                            
+                            <!-- MORE DROPDOWN -->
+                            <div class="relative flex-shrink-0" @click.outside="open = false">
+                                <button @click="open = !open" 
+                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
+                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
+                                    <span>More</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                <!-- Dropdown Content -->
+                                <div x-show="open" 
+                                    x-transition:enter="ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95 transform"
+                                    x-transition:enter-end="opacity-100 scale-100 transform"
+                                    x-transition:leave="ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100 transform"
+                                    x-transition:leave-end="opacity-0 scale-95 transform"
+                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
+                                    style="display: none;">
+                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
+                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Enrollment Link (CTA Button) -->
+                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button">
+                            Enroll Now
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-cyber-cyan focus:outline-none" 
+                            aria-label="Toggle Menu"
+                            aria-expanded="false" 
+                            aria-controls="mobile-menu">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
+            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
+                <!-- MOBILE LINKS -->
+                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
+                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Courses</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Industrial Visit</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Upcoming Batch</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Internship</a>
+
+                <!-- MOBILE MORE DROPDOWN -->
+                <div @click.outside="open = false">
+                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
+                        <span>More</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
+                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
+                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
+                    </div>
+                </div>
+
+                <a href="#" class="block px-3 py-2 rounded-md cta-button mt-4 text-center">Enroll Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Hero Section) - Console Card -->
+    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 lg:py-32 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center console-card p-8 sm:p-12 rounded-lg content-hidden shadow-2xl shadow-cyber-cyan/10">
+            
+            <!-- Left Column: Sentinel Information - UPDATED CONTENT -->
+            <div id="content-col" class="text-left">
+                <p class="text-cyber-cyan font-mono text-sm mb-3 uppercase tracking-widest animate-pulse">
+                    > STATUS: ESTABLISHED SINCE 1995
+                </p>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-text-light mb-4 leading-tight">
+                    Sansbound Network School:
+                    <span class="block text-cyber-cyan mt-2">Pioneering Your Career in Tech.</span>
+                </h1>
+                
+                <p class="text-lg text-text-light/80 mb-8">
+                    For over **30 years**, Sansbound has been the definitive leader in hands-on, practical networking education. We build careers in the real world of **Cloud, Security, and Enterprise Networking**.
+                </p>
+
+                <!-- Key Features Bullet Points - UPDATED FEATURES -->
+                <ul class="space-y-4 mt-8 text-text-light/80 feature-list">
+                    
+                    <li class="flex items-start space-x-3 text-left p-3">
+                        <i class="fas fa-video w-6 h-6 text-cyber-cyan flex-shrink-0 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-text-light text-base leading-snug">Live, Hybrid Learning</p>
+                            <p class="text-sm">Attend our courses **online and offline** with live instructors. Learn from anywhere with guaranteed access to our physical labs.</p>
+                        </div>
+                    </li>
+
+                    <li class="flex items-start space-x-3 text-left p-3">
+                        <i class="fas fa-server w-6 h-6 text-cyber-cyan flex-shrink-0 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-text-light text-base leading-snug">100% Practical Labs</p>
+                            <p class="text-sm">Gain confidence with real Cisco, Juniper, and Cloud environments. Practice is our core curriculum.</p>
+                        </div>
+                    </li>
+
+                    <li class="flex items-start space-x-3 text-left p-3">
+                        <i class="fas fa-handshake w-6 h-6 text-cyber-cyan flex-shrink-0 mt-1"></i>
+                        <div>
+                            <p class="font-bold text-text-light text-base leading-snug">Guaranteed Placement Support</p>
+                            <p class="text-sm">Benefit from our extensive industry network and dedicated career counseling to launch your IT career.</p>
+                        </div>
+                    </li>
+                </ul>
+
+                <!-- CTA Button -->
+                <div class="mt-10 text-left">
+                    <a href="courses.html" class="inline-block px-8 py-3 text-lg rounded-md cta-button">
+                        Explore Courses & Enroll Today
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Image Placeholder (Network Graphic) -->
+            <div id="image-col" class="hidden lg:block">
+                <!-- Image Container with Dark Background and Cyber Styling -->
+                <div class="p-4 rounded-lg bg-bg-dark border border-cyber-cyan/30 shadow-xl shadow-cyber-blue/50 relative overflow-hidden h-96 flex items-center justify-center"> 
+                    <img 
+                        src="https://placehold.co/400x400/1e40af/06b6d4?text=Cloud+Network+Graphic" 
+                        alt="Abstract Network Topology Visualization" 
+                        class="w-full h-full object-contain rounded-md"
+                        onerror="this.onerror=null; this.src='https://placehold.co/400x400/1e40af/06b6d4?text=Cloud+Network+Graphic';"
+                    >
+                    <div class="absolute bottom-2 left-0 right-0 text-center text-xs font-mono text-text-light/70 bg-bg-dark/50 py-1">
+                        Abstract Network Topology Visualization
+                    </div>
+                </div>
+                
+                <!-- Social Media Icons -->
+                <div class="mt-8 flex justify-center space-x-10 text-text-light/50">
+                    
+                    <a href="#" aria-label="Follow us on Instagram" class="hover:text-cyber-cyan transition duration-300 transform hover:scale-110">
+                        <i class="fab fa-instagram text-4xl"></i>
+                    </a>
+                    
+                    <a href="#" aria-label="Contact us on WhatsApp" class="hover:text-cyber-cyan transition duration-300 transform hover:scale-110">
+                        <i class="fab fa-whatsapp text-4xl"></i>
+                    </a>
+                    
+                    <a href="#" aria-label="Join us on Telegram" class="hover:text-cyber-cyan transition duration-300 transform hover:scale-110">
+                        <i class="fab fa-telegram-plane text-4xl"></i>
+                    </a>
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Dark, Secure Look) - UPDATED -->
+    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm font-mono">
+            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
+        </div>
+    </footer>
+
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+        // =========================================================
+        // Cloud Sentinel Visualization (Hex Grid and Data Flow)
+        // =========================================================
+
+        const NetworkVisualizer = (() => {
+            const container = document.getElementById('network-canvas');
+            const canvas = document.getElementById('network-canvas-drawing');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            if (!container || !ctx) return; 
+
+            // --- Constants and State ---
+            let width, height;
+            let globalTime = 0;
+            const MOUSE_INFLUENCE_RADIUS = 200; 
+            const MOUSE_STRENGTH = 0.08;
+            let mousePos = { x: 0, y: 0 };
+            
+            // Hex Grid Properties
+            const HEX_SIZE = 60;
+            const HEX_COLOR = 'rgba(6, 182, 212, 0.03)'; // Very faint cyan
+            const HEX_STROKE = 1;
+
+            // --- Topology Definition (New fixed nodes for dark mode) ---
+            const NODES = [
+                { id: 'R1', type: 'core', x: 25, y: 20, size: 14, className: 'core', vx: 0, vy: 0 },
+                { id: 'R2', type: 'core', x: 75, y: 80, size: 14, className: 'core', vx: 0, vy: 0 },
+                { id: 'S1', type: 'core', x: 50, y: 50, size: 14, className: 'core', vx: 0, vy: 0 },
+                // Satellites orbiting S1 (Central Hub)
+                { id: 'S1a', type: 'satellite', size: 5, className: 'satellite', orbitParent: 'S1', orbitRadius: 40, orbitSpeed: 0.8 },
+                { id: 'S1b', type: 'satellite', size: 5, className: 'satellite', orbitParent: 'S1', orbitRadius: 65, orbitSpeed: 0.5 },
+                { id: 'D1', type: 'satellite', size: 5, className: 'satellite', orbitParent: 'S1', orbitRadius: 80, orbitSpeed: 0.3 },
+                // Floating nodes (Darker/Slower)
+                { id: 'F1', type: 'satellite', x: 10, y: 70, size: 4, className: 'satellite', vx: 0.03, vy: -0.05 },
+                { id: 'F2', type: 'satellite', x: 90, y: 30, size: 4, className: 'satellite', vx: -0.04, vy: 0.06 },
+            ];
+
+            const CONNECTIONS = [
+                { source: 'R1', target: 'S1', weight: 1.0 },
+                { source: 'R2', target: 'S1', weight: 0.9 },
+                { source: 'S1', target: 'S1a', weight: 0.6 },
+                { source: 'S1b', target: 'D1', weight: 0.4 },
+                { source: 'R1', target: 'F1', weight: 0.3 },
+                { source: 'R2', target: 'F2', weight: 0.3 },
+            ];
+
+            const nodeElements = {};
+            
+            // --- Utility Functions ---
+
+            const resizeCanvas = () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+                // Re-position fixed DOM nodes 
+                NODES.forEach(n => {
+                    const el = nodeElements[n.id];
+                    if (!el || n.orbitParent) return;
+                    el.style.left = `calc(${n.x}vw - ${n.size / 2}px)`; 
+                    el.style.top = `calc(${n.y}vh - ${n.size / 2}px)`;
+                });
+            };
+
+            const getNodeCenter = (nodeId) => {
+                const el = nodeElements[nodeId];
+                if (!el) return null;
+                const rect = el.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2,
+                    size: rect.width / 2
+                };
+            };
+
+            // --- Hex Grid Drawing ---
+            const drawHexGrid = () => {
+                const h = HEX_SIZE * Math.sqrt(3) / 2; // Hex height
+                const w = HEX_SIZE * 1.5; // Hex width
+
+                ctx.strokeStyle = HEX_COLOR;
+                ctx.lineWidth = HEX_STROKE;
+
+                for (let x = -HEX_SIZE; x < width + HEX_SIZE * 2; x += w) {
+                    for (let y = -HEX_SIZE; y < height + HEX_SIZE * 2; y += h * 2) {
+                        
+                        // Shift every other column
+                        const yOffset = (x / w) % 2 !== 0 ? h : 0;
+                        
+                        // Draw two hexagons per grid position (top and bottom)
+                        drawHex(x, y + yOffset);
+                        drawHex(x, y + yOffset + h);
+                    }
+                }
+            };
+
+            const drawHex = (x, y) => {
+                const h = HEX_SIZE * Math.sqrt(3) / 2;
+                ctx.beginPath();
+                ctx.moveTo(x + HEX_SIZE, y);
+                ctx.lineTo(x + HEX_SIZE * 0.5, y + h);
+                ctx.lineTo(x - HEX_SIZE * 0.5, y + h);
+                ctx.lineTo(x - HEX_SIZE, y);
+                ctx.lineTo(x - HEX_SIZE * 0.5, y - h);
+                ctx.lineTo(x + HEX_SIZE * 0.5, y - h);
+                ctx.closePath();
+                ctx.stroke();
+            };
+
+            // --- Canvas Drawing (Lines and Data Stream) ---
+            const drawConnectionsCanvas = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.lineCap = 'round';
+                
+                // 1. Draw Hex Grid first
+                drawHexGrid();
+                
+                // 2. Draw Connections and Data Stream
+                CONNECTIONS.forEach(conn => {
+                    const sourceCenter = getNodeCenter(conn.source);
+                    const targetCenter = getNodeCenter(conn.target);
+                    
+                    if (!sourceCenter || !targetCenter) return;
+                    
+                    const weight = conn.weight || 0.5;
+                    const thickness = 0.5 + weight * 1.5;
+
+                    const dx = targetCenter.x - sourceCenter.x;
+                    const dy = targetCenter.y - sourceCenter.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx);
+
+                    // A. Draw Static Connection Glow
+                    ctx.beginPath();
+                    ctx.moveTo(sourceCenter.x, sourceCenter.y);
+                    ctx.lineTo(targetCenter.x, targetCenter.y);
+                    
+                    // Faint static line
+                    ctx.strokeStyle = `rgba(6, 182, 212, ${0.1 + weight * 0.2})`;
+                    ctx.lineWidth = thickness + 1;
+                    ctx.shadowColor = '#06b6d4';
+                    ctx.shadowBlur = 5;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // Reset shadow
+
+                    // B. Draw Animated Data Stream (Dots)
+                    const speed = 0.0003 * weight;
+                    const numPackets = Math.floor(distance / 50) + 1;
+                    
+                    for (let i = 0; i < numPackets; i++) {
+                        // Calculate position along the line based on global time
+                        const offset = (globalTime * speed + (i / numPackets)) % 1;
+                        const px = sourceCenter.x + dx * offset;
+                        const py = sourceCenter.y + dy * offset;
+
+                        ctx.fillStyle = `rgba(6, 182, 212, ${0.8 + weight * 0.2})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 1.5 + weight, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+            };
+
+            // --- Movement and Interaction Logic ---
+
+            const createNodeElement = (node) => {
+                const el = document.createElement('div');
+                el.classList.add('node', node.className);
+                el.id = `node-${node.id}`;
+                el.style.width = `${node.size}px`;
+                el.style.height = `${node.size}px`;
+                
+                if (!node.orbitParent) {
+                    el.style.left = `calc(${node.x}vw - ${node.size / 2}px)`;
+                    el.style.top = `calc(${node.y}vh - ${node.size / 2}px)`;
+                }
+
+                container.appendChild(el);
+                return el;
+            };
+
+            const updateNodePositions = (deltaTime) => {
+                globalTime += deltaTime; 
+
+                NODES.forEach(n => {
+                    const el = nodeElements[n.id];
+                    if (!el) return;
+                    let currentX, currentY;
+
+                    // 1. Orbital Motion
+                    if (n.orbitParent) {
+                        const parentCenter = getNodeCenter(n.orbitParent);
+                        if (!parentCenter) return;
+
+                        const angle = (globalTime * 0.0001 * n.orbitSpeed) % (Math.PI * 2);
+                        currentX = parentCenter.x + n.orbitRadius * Math.cos(angle);
+                        currentY = parentCenter.y + n.orbitRadius * Math.sin(angle);
+                        
+                        el.style.left = `${currentX}px`;
+                        el.style.top = `${currentY}px`;
+                        el.style.transform = `translate(-50%, -50%)`;
+                    } else if (n.className === 'core') {
+                        // 2. Core Nodes (Mostly static, position retrieved from DOM)
+                        const center = getNodeCenter(n.id);
+                        if(center) {
+                            currentX = center.x;
+                            currentY = center.y;
+                        } else return;
+                    } else {
+                        // 3. Floating Nodes (Drift and boundary reflection)
+                        const currentLeft = parseFloat(el.style.left) || (n.x / 100 * width);
+                        const currentTop = parseFloat(el.style.top) || (n.y / 100 * height);
+
+                        currentX = currentLeft + n.vx * deltaTime;
+                        currentY = currentTop + n.vy * deltaTime;
+                        
+                        if (currentX < 0 || currentX > width) n.vx *= -1;
+                        if (currentY < 0 || currentY > height) n.vy *= -1;
+
+                        el.style.left = `${currentX}px`;
+                        el.style.top = `${currentY}px`;
+                    }
+                    
+                    // 4. Mouse Interaction (Applies repulsive force)
+                    const dx = currentX - mousePos.x;
+                    const dy = currentY - mousePos.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    let tx = 0, ty = 0;
+                    if (distance < MOUSE_INFLUENCE_RADIUS) {
+                        const force = (MOUSE_INFLUENCE_RADIUS - distance) / MOUSE_INFLUENCE_RADIUS * MOUSE_STRENGTH;
+                        tx = dx / distance * force * -10;
+                        ty = dy / distance * force * -10;
+                    } 
+                    
+                    // Apply final transform
+                    if (n.orbitParent) {
+                        el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
+                    } else {
+                        el.style.transform = `translate(${tx}px, ${ty}px)`;
+                    }
+                });
+            };
+
+
+            // --- Main Loop ---
+            let lastTimestamp = 0;
+            const animate = (timestamp) => {
+                const deltaTime = timestamp - lastTimestamp;
+                lastTimestamp = timestamp;
+
+                // 1. Update all node positions 
+                updateNodePositions(deltaTime);
+                
+                // 2. Canvas Drawing (Hex Grid, Lines, and Data Streams)
+                drawConnectionsCanvas();
+                
+                // 3. Re-queue next frame
+                requestAnimationFrame(animate);
+            };
+
+            // --- Initialization and Events ---
+            const handleMouseMove = (e) => {
+                mousePos = { x: e.clientX, y: e.clientY };
+            };
+            
+            const init = () => {
+                // 1. Create all node elements (DOM)
+                NODES.forEach(node => {
+                    nodeElements[node.id] = createNodeElement(node);
+                });
+
+                // 2. Set up event listeners
+                window.addEventListener('resize', resizeCanvas);
+                container.addEventListener('mousemove', handleMouseMove);
+                
+                // Initial size and positioning setup
+                resizeCanvas();
+                
+                // Start the main animation loop
+                requestAnimationFrame(animate);
+            };
+
+            return { init };
+        })();
+
+        // ===========================================
+        // Document Ready Event Listener
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the Network Visualizer
+            NetworkVisualizer.init();
+
+            // Mobile Menu Toggle logic
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isExpanded = mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+
+            // Simple Fade-in-Up Animations (Main Content)
+            const mainContent = document.querySelector('.console-card');
+            
+            if (mainContent) {
+                setTimeout(() => {
+                    mainContent.classList.remove('content-hidden');
+                    mainContent.classList.add('animate-fade-in-up');
+                }, 200); 
+            }
+        });
+    </script>
+</body>
+</html>

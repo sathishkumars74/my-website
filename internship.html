@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansbound Network School - Internship Program</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Configure Tailwind for custom theme and font --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
+                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
+                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
+                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
+                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'neon-pulse': {
+                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
+                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
+                        },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Base Styles (Dark Mode) */
+        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
+        .content-hidden { opacity: 0; }
+        
+        /* Custom Scrollbar */
+        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
+        body::-webkit-scrollbar-track { background-color: #1e293b; }
+
+        /* Network Background Container */
+        .network-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -20;
+        }
+
+        /* Canvas element (for Animation) */
+        #network-canvas-drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.7; /* Slightly subdued background */
+        }
+        
+        /* Console Card Styling (Cyber look) */
+        .console-card {
+            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
+            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
+        }
+        
+        /* Call To Action Button (Cyan Glow) */
+        .cta-button {
+            background-color: var(--tw-colors-cyber-cyan);
+            color: var(--tw-colors-bg-dark);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .cta-button:hover {
+            background-color: #22d3ee; 
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Feature List Styling for Internship Section */
+        .internship-feature {
+            border-left: 3px solid var(--tw-colors-cyber-cyan);
+            background-color: rgba(6, 182, 212, 0.05);
+            transition: all 0.3s;
+        }
+        .internship-feature:hover {
+            background-color: rgba(6, 182, 212, 0.15);
+        }
+        
+    </style>
+</head>
+<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+
+    <!-- Network Infrastructure Visualization Container -->
+    <div id="network-canvas" class="network-bg-canvas">
+        <canvas id="network-canvas-drawing"></canvas>
+    </div>
+
+    <!-- Header & Navigation Bar (Minimalist Dark) -->
+    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Logo & Company Name (Left Top) -->
+                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
+                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
+                        </div>
+                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
+                            SANSBOUND 
+                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Menu & CTA -->
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
+                            <!-- LINKS pointing to all pages -->
+                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
+                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Courses</a>
+                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Industrial Visit</a>
+                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Upcoming Batch</a>
+                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan transition duration-300 text-cyber-cyan">Internship</a>
+                            
+                            <!-- MORE DROPDOWN -->
+                            <div class="relative flex-shrink-0" @click.outside="open = false">
+                                <button @click="open = !open" 
+                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
+                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
+                                    <span>More</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                <!-- Dropdown Content -->
+                                <div x-show="open" 
+                                    x-transition:enter="ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95 transform"
+                                    x-transition:enter-end="opacity-100 scale-100 transform"
+                                    x-transition:leave="ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100 transform"
+                                    x-transition:leave-end="opacity-0 scale-95 transform"
+                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
+                                    style="display: none;">
+                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
+                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Enrollment Link (CTA Button) -->
+                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button">
+                            Enroll Now
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-cyber-cyan focus:outline-none" 
+                            aria-label="Toggle Menu"
+                            aria-expanded="false" 
+                            aria-controls="mobile-menu">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
+            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
+                <!-- MOBILE LINKS -->
+                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
+                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Courses</a>
+                <a href="industrial_visit.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Industrial Visit</a>
+                <a href="upcoming_batch.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Upcoming Batch</a>
+                <a href="internship.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50 bg-cyber-blue/20 text-cyber-cyan">Internship</a>
+
+                <!-- MOBILE MORE DROPDOWN -->
+                <div @click.outside="open = false">
+                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
+                        <span>More</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
+                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
+                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
+                    </div>
+                </div>
+
+                <a href="#" class="block px-3 py-2 rounded-md cta-button mt-4 text-center">Enroll Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Internship Program) -->
+    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 flex-grow">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-16 console-card p-8 rounded-lg shadow-xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up">
+            <p class="text-cyber-cyan font-mono text-sm mb-3 uppercase tracking-widest animate-pulse">
+                > INTERNSHIP PROGRAM INITIATED
+            </p>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-text-light mb-3 leading-tight">
+                From Classroom to Command Center
+            </h1>
+            <p class="text-lg text-text-light/80 max-w-3xl mx-auto">
+                Our internship provides real-world experience in live network and cloud environments. Start your professional journey with guaranteed practical skills.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Key Features -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <div class="console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-1">
+                    <h2 class="text-2xl font-bold text-cyber-cyan mb-4 flex items-center space-x-3">
+                        <i class="fas fa-microchip"></i>
+                        <span>Program Structure</span>
+                    </h2>
+                    <p class="text-text-light/80 mb-6">
+                        The Sansbound internship is a 3-month intensive program focused on project-based learning. You will be mentored by senior network architects and security specialists.
+                    </p>
+                    <ul class="space-y-4 text-text-light/90">
+                        <li class="internship-feature p-3 flex items-start space-x-3">
+                            <i class="fas fa-cogs w-6 h-6 text-cyber-cyan flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="font-bold text-text-light text-base leading-snug">Live Project Deployment</p>
+                                <p class="text-sm">Work directly on simulating and resolving real-world network infrastructure tickets and deployment projects.</p>
+                            </div>
+                        </li>
+                        <li class="internship-feature p-3 flex items-start space-x-3">
+                            <i class="fas fa-chart-line w-6 h-6 text-cyber-cyan flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="font-bold text-text-light text-base leading-snug">Performance Monitoring & Reporting</p>
+                                <p class="text-sm">Gain hands-on experience using monitoring tools (SolarWinds, Prometheus) to maintain network health.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-2">
+                    <h2 class="text-2xl font-bold text-cyber-cyan mb-4 flex items-center space-x-3">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Eligibility & Application</span>
+                    </h2>
+                    <p class="text-text-light/80 mb-4">
+                        This program is highly competitive. Applicants must meet the following criteria:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 text-text-light/80 ml-4">
+                        <li>Completion of a CCNA-level course (or equivalent knowledge).</li>
+                        <li>Proficiency in at least one scripting language (Python/Bash).</li>
+                        <li>Commitment to a minimum of 20 hours per week.</li>
+                    </ul>
+                    
+                </div>
+            </div>
+
+            <!-- Application Widget -->
+            <div class="lg:col-span-1">
+                <div class="console-card p-6 rounded-lg shadow-xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up card-delay-3">
+                    <h3 class="text-xl font-bold text-text-light mb-4 border-b border-cyber-cyan/20 pb-2">
+                        Apply Now
+                    </h3>
+                    <p class="text-text-light/70 mb-6">
+                        The current application window closes soon. Submit your details to begin the screening process.
+                    </p>
+                    
+                    <form class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-cyber-cyan mb-1">Full Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your Designated Identifier" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-cyber-cyan mb-1">Contact Email</label>
+                            <input type="email" id="email" name="email" placeholder="Your Communication Channel" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
+                        </div>
+                        <div>
+                            <label for="track" class="block text-sm font-medium text-cyber-cyan mb-1">Preferred Track</label>
+                            <select id="track" name="track" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyan-500 text-text-light" required>
+                                <option value="" disabled selected class="bg-bg-dark">Select specialization...</option>
+                                <option value="networking" class="bg-bg-dark">Enterprise Networking</option>
+                                <option value="cloud" class="bg-bg-dark">Cloud Infrastructure</option>
+                                <option value="security" class="bg-bg-dark">Cyber Security</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-3 mt-4 text-lg rounded-md cta-button">
+                            Transmit Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Dark, Secure Look) -->
+    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm font-mono">
+            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
+        </div>
+    </footer>
+
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+        // =========================================================
+        // Floating Data Rings / Aura Visualization
+        // Slow-moving, glowing, large circles that drift across the screen.
+        // =========================================================
+
+        const FloatingRingsVisualizer = (() => {
+            const container = document.getElementById('network-canvas');
+            const canvas = document.getElementById('network-canvas-drawing');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            if (!container || !ctx) return; 
+
+            // --- Constants and State ---
+            let width, height;
+            const RING_COUNT = 8; // Small number of large rings
+            const BASE_RADIUS = 120;
+            const DRIFT_SPEED = 0.05;
+            const RING_COLOR = '#06b6d4'; // cyber-cyan
+            let rings = [];
+
+            // --- Ring Structure ---
+            const createRing = () => {
+                // Determine starting edge randomly (prevents rings bunching in the center)
+                let startX, startY;
+                if (Math.random() < 0.5) { // Start on vertical sides
+                    startX = Math.random() < 0.5 ? 0 : width;
+                    startY = Math.random() * height;
+                } else { // Start on horizontal sides
+                    startX = Math.random() * width;
+                    startY = Math.random() < 0.5 ? 0 : height;
+                }
+
+                // Randomize velocity, favoring movement away from the starting edge
+                const vx = (Math.random() - 0.5) * DRIFT_SPEED * 2;
+                const vy = (Math.random() - 0.5) * DRIFT_SPEED * 2;
+                
+                return {
+                    x: startX,
+                    y: startY,
+                    vx: vx,
+                    vy: vy,
+                    radius: BASE_RADIUS + Math.random() * 50,
+                    life: Math.random() * 1000 // Offset for pulsing/opacity
+                };
+            };
+
+            // --- Utility Functions ---
+            const resizeCanvas = () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                // Re-initialize rings only if array is empty (to avoid sudden changes)
+                if (rings.length === 0) {
+                    for (let i = 0; i < RING_COUNT; i++) {
+                        rings.push(createRing());
+                    }
+                }
+            };
+
+            // --- Drawing Logic ---
+            const drawFrame = (timestamp) => {
+                // Clear the canvas, but keep a very low opacity for minimal trail
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.1)'; 
+                ctx.fillRect(0, 0, width, height);
+                
+                const time = timestamp * 0.001; // Time in seconds
+
+                for (let i = 0; i < rings.length; i++) {
+                    const r = rings[i];
+
+                    // 1. Update position
+                    r.x += r.vx;
+                    r.y += r.vy;
+                    r.life += 0.5;
+
+                    // 2. Check and wrap boundaries: Reset ring if it drifts too far off-screen
+                    if (r.x > width + r.radius * 2 || r.x < -r.radius * 2 || 
+                        r.y > height + r.radius * 2 || r.y < -r.radius * 2) {
+                        
+                        Object.assign(r, createRing());
+                    }
+
+                    // 3. Calculate dynamic properties
+                    // Slow, hypnotic pulse for size
+                    const pulse = Math.sin(time * 0.2 + r.life * 0.01) * 0.1 + 0.9; 
+                    const currentRadius = r.radius * pulse;
+                    
+                    // Subtle fade/glow
+                    const opacity = 0.03 + (Math.sin(time * 0.1 + r.life * 0.005) * 0.01);
+                    
+                    // 4. Draw the ring/aura
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, currentRadius, 0, Math.PI * 2);
+                    
+                    ctx.strokeStyle = RING_COLOR;
+                    ctx.lineWidth = 1;
+                    ctx.globalAlpha = opacity;
+                    
+                    ctx.shadowColor = RING_COLOR;
+                    ctx.shadowBlur = 15; // Strong but gentle glow
+
+                    ctx.stroke();
+                }
+                
+                ctx.shadowBlur = 0; // Reset shadow
+                ctx.globalAlpha = 1.0; // Reset global alpha
+            };
+
+            // --- Main Loop ---
+            const animate = (timestamp) => {
+                drawFrame(timestamp);
+                requestAnimationFrame(animate);
+            };
+
+            // --- Initialization and Events ---
+            const init = () => {
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas(); 
+                animate(0); // Start animation
+            };
+
+            return { init };
+        })();
+        
+        // ===========================================
+        // Document Ready Event Listener
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the Visualizer
+            FloatingRingsVisualizer.init();
+
+            // Mobile Menu Toggle logic (kept as is)
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isExpanded = mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+            
+            // Simple Fade-in-Up Animations (Card/Content)
+            const contentElements = document.querySelectorAll('.content-hidden');
+            contentElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.remove('content-hidden');
+                    el.classList.add('animate-fade-in-up');
+                }, 200 + index * 150); 
+            });
+        });
+    </script>
+</body>
+</html>
