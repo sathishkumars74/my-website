@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sansbound Network School - Enrollment</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f1f5f9;
+      font-family: "Inter", sans-serif;
+    }
+    .console-card {
+      background-color: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    }
+    .cta-button {
+      background-color: #06b6d4;
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+      transition: 0.3s;
+    }
+    .cta-button:hover {
+      background-color: #22d3ee;
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center">
+  <div class="w-full max-w-2xl console-card p-8 rounded-lg">
+    <h1 class="text-3xl font-extrabold text-center mb-6 text-cyan-400">
+      Enrollment Form
+    </h1>
+
+    <form id="enrollForm" class="space-y-6">
+      <!-- Full Name -->
+      <div>
+        <label for="full_name" class="block mb-1 text-sm">Full Name</label>
+        <input
+          type="text"
+          id="full_name"
+          name="full_name"
+          placeholder="Your Full Name"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email_id" class="block mb-1 text-sm">Email ID</label>
+        <input
+          type="email"
+          id="email_id"
+          name="email_id"
+          placeholder="you@example.com"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label for="phone" class="block mb-1 text-sm">Contact Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="9876543210"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Course -->
+      <div>
+        <label for="course_track" class="block mb-1 text-sm"
+          >Course Track</label
+        >
+        <select
+          id="course_track"
+          name="course_track"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        >
+          <option value="" disabled selected>-- Select Your Course --</option>
+          <option value="networking">Enterprise Networking (CCNP)</option>
+          <option value="cloud">Cloud Infrastructure (AWS/Azure)</option>
+          <option value="security">Cyber Security (CEH)</option>
+          <option value="internship">Professional Internship Program</option>
+        </select>
+      </div>
+
+      <!-- Agreement -->
+      <div class="flex items-start space-x-2">
+        <input
+          id="agreement"
+          name="agreement"
+          type="checkbox"
+          required
+          class="mt-1"
+        />
+        <label for="agreement" class="text-sm text-gray-300"
+          >I agree to the <a href="#" class="text-cyan-400 underline">Terms &
+          Conditions</a>.</label
+        >
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="w-full py-3 text-xl rounded-md cta-button"
+      >
+        <i class="fas fa-paper-plane mr-2"></i>Submit Enrollment
+      </button>
+    </form>
+  </div>
+
+  <!-- Supabase Integration -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script>
+    // Your Supabase credentials
+    const SUPABASE_URL = "https://aluuansqvivswbwumopu.supabase.co"; // Replace this
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsdXVhbnNxdml2c3did3Vtb3B1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTIyNTUsImV4cCI6MjA3Nzk4ODI1NX0.CCvMvKYnQAvr5Nwp7jnKz7IdSAoe03h8bgJS72RWuKc"; // Replace this
+    const { createClient } = supabase;
+    const supa = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Handle form submission
+    document.getElementById("enrollForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const full_name = document.getElementById("full_name").value;
+      const email_id = document.getElementById("email_id").value;
+      const course_track = document.getElementById("course_track").value;
+      const phone = document.getElementById("phone").value;
+
+      const { data, error } = await supa
+        .from("enrollments")
+        .insert([{ full_name, email_id, course_track, phone }]);
+
+      if (error) {
+        alert("❌ Error saving data: " + error.message);
+        console.error(error);
+      } else {
+        alert("✅ Enrollment Successful! Thank you for registering.");
+        e.target.reset();
+      }
+    });
+  </script>
+</body>
+</html>
