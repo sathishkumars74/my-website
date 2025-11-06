@@ -1,507 +1,166 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sansbound Network School - Enrollment Portal</title>
-    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Configure Tailwind for custom theme and font --><script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
-                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
-                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
-                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
-                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
-                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        'fade-in-up': {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        'neon-pulse': {
-                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
-                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
-                        },
-                    }
-                },
-            }
-        }
-    </script>
-    <style>
-        /* Base Styles (Dark Mode) */
-        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
-        .content-hidden { opacity: 0; }
-        
-        /* Custom Scrollbar */
-        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
-        body::-webkit-scrollbar { width: 8px; }
-        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
-        body::-webkit-scrollbar-track { background-color: #1e293b; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sansbound Network School - Enrollment</title>
 
-        /* Network Background Container */
-        .network-bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -20;
-        }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Canvas element (for Animation) */
-        #network-canvas-drawing {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.6; /* Slightly subdued background */
-        }
-        
-        /* Console Card Styling (Cyber look) */
-        .console-card {
-            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
-            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
-        }
-        
-        /* Call To Action Button (Cyan Glow) */
-        .cta-button {
-            background-color: var(--tw-colors-cyber-cyan);
-            color: var(--tw-colors-bg-dark);
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
-            transition: all 0.3s ease;
-            font-weight: 700;
-        }
-        .cta-button:hover {
-            background-color: #22d3ee; 
-            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
-            transform: translateY(-2px) scale(1.02);
-        }
-    </style>
-</head>
-<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 
-    <!-- Network Infrastructure Visualization Container -->
-    <div id="network-canvas" class="network-bg-canvas">
-        <canvas id="network-canvas-drawing"></canvas>
-    </div>
-
-    <!-- Header & Navigation Bar (Minimalist Dark) -->
-    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="p-4">
-                <div class="flex items-center justify-between">
-                    
-                    <!-- Logo & Company Name (Left Top) -->
-                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
-                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
-                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
-                        </div>
-                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
-                            SANSBOUND 
-                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
-                        </a>
-                    </div>
-
-                    <!-- Desktop Navigation Menu & CTA -->
-                    <div class="flex items-center space-x-6" x-data="{ open: false }">
-                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
-                            <!-- LINKS pointing to all pages -->
-                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
-                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Courses</a>
-                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Industrial Visit</a>
-                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Upcoming Batch</a>
-                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Internship</a>
-                            
-                            <!-- MORE DROPDOWN -->
-                            <div class="relative flex-shrink-0" @click.outside="open = false">
-                                <button @click="open = !open" 
-                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
-                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
-                                    <span>More</span>
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-
-                                <!-- Dropdown Content -->
-                                <div x-show="open" 
-                                    x-transition:enter="ease-out duration-300"
-                                    x-transition:enter-start="opacity-0 scale-95 transform"
-                                    x-transition:enter-end="opacity-100 scale-100 transform"
-                                    x-transition:leave="ease-in duration-200"
-                                    x-transition:leave-start="opacity-100 scale-100 transform"
-                                    x-transition:leave-end="opacity-0 scale-95 transform"
-                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
-                                    style="display: none;">
-                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
-                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
-                                </div>
-                            </div>
-                        </nav>
-                        
-                        <!-- Enrollment Link (CTA Button) - Active -->
-                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button border-2 border-transparent border-cyber-cyan">
-                            Enroll Now
-                        </a>
-                    </div>
-
-                    <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-btn" 
-                            class="md:hidden text-cyber-cyan focus:outline-none" 
-                            aria-label="Toggle Menu"
-                            aria-expanded="false" 
-                            aria-controls="mobile-menu">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
-            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
-                <!-- MOBILE LINKS -->
-                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
-                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Courses</a>
-                <a href="industrial_visit.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Industrial Visit</a>
-                <a href="upcoming_batch.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Upcoming Batch</a>
-                <a href="internship.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Internship</a>
-
-                <!-- MOBILE MORE DROPDOWN -->
-                <div @click.outside="open = false">
-                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
-                        <span>More</span>
-                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
-                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
-                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
-                    </div>
-                </div>
-
-                <a href="enroll.html" class="block px-3 py-2 rounded-md cta-button mt-4 text-center border-2 border-transparent border-cyber-cyan">Enroll Now</a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content (Enrollment Form) -->
-    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 flex-grow flex items-center justify-center">
-        
-        <div class="w-full max-w-2xl console-card p-6 sm:p-10 rounded-lg shadow-2xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up">
-            
-            <div class="text-center mb-8">
-                <p class="text-cyber-cyan font-mono text-sm mb-2 uppercase tracking-widest">
-                    > ACCESS LEVEL: LEVEL-1 ENROLLMENT
-                </p>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-text-light leading-tight">
-                    Begin Your Application
-                </h1>
-                <p class="text-text-light/80 mt-2">
-                    Please provide the requested data for system registration. All data is securely encrypted.
-                </p>
-            </div>
-
-            <form class="space-y-6">
-                
-                <!-- Section 1: Personal Identification -->
-                <div class="border border-cyber-cyan/20 p-4 rounded-md">
-                    <h2 class="text-lg font-bold text-cyber-cyan mb-3 flex items-center space-x-2">
-                        <i class="fas fa-id-card"></i> <span>Personal Identification</span>
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="full_name" class="block text-sm font-medium text-text-light mb-1">Full Name</label>
-                            <input type="text" id="full_name" name="full_name" placeholder="Legal Name" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-text-light mb-1">Contact Phone</label>
-                            <input type="tel" id="phone" name="phone" placeholder="Contact Channel Identifier" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
-                        </div>
-                    </div>
-                    <div>
-                        <label for="email_id" class="block text-sm font-medium text-text-light mt-4 mb-1">Primary Email ID</label>
-                        <input type="email" id="email_id" name="email_id" placeholder="Secure Communication Address" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
-                    </div>
-                </div>
-
-                <!-- Section 2: Program Selection -->
-                <div class="border border-cyber-cyan/20 p-4 rounded-md">
-                    <h2 class="text-lg font-bold text-cyber-cyan mb-3 flex items-center space-x-2">
-                        <i class="fas fa-sitemap"></i> <span>Program Target</span>
-                    </h2>
-                    <div>
-                        <label for="course_track" class="block text-sm font-medium text-text-light mb-1">Desired Course Track</label>
-                        <select id="course_track" name="course_track" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
-                            <option value="" disabled selected class="bg-bg-dark">-- Select Your Path --</option>
-                            <option value="networking" class="bg-bg-dark">Enterprise Networking (CCNP)</option>
-                            <option value="cloud" class="bg-bg-dark">Cloud Infrastructure (AWS/Azure)</option>
-                            <option value="security" class="bg-bg-dark">Cyber Security Track (CEH)</option>
-                            <option value="internship" class="bg-bg-dark">Professional Internship Program</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="batch_preference" class="block text-sm font-medium text-text-light mt-4 mb-1">Batch Preference</label>
-                        <select id="batch_preference" name="batch_preference" class="w-full px-3 py-2 rounded-md bg-bg-dark border border-cyber-cyan/50 focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan text-text-light" required>
-                            <option value="" disabled selected class="bg-bg-dark">-- Select Nearest Start Date --</option>
-                            <option value="sep15" class="bg-bg-dark">Sep 15, 2025 (Networking)</option>
-                            <option value="oct10" class="bg-bg-dark">Oct 10, 2025 (Security - Limited Seats)</option>
-                            <option value="oct25" class="bg-bg-dark">Oct 25, 2025 (Cloud)</option>
-                            <option value="any" class="bg-bg-dark">Flexible / Contact Me</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Section 3: Final Agreement -->
-                <div class="p-4 rounded-md">
-                    <div class="flex items-start">
-                        <input id="agreement" name="agreement" type="checkbox" class="h-4 w-4 text-cyber-cyan bg-bg-dark border-cyber-cyan/50 focus:ring-cyber-cyan rounded mt-1" required>
-                        <label for="agreement" class="ml-2 block text-sm text-text-light/80">
-                            I confirm the data above is accurate and I agree to the <a href="#" class="text-cyber-cyan hover:underline">Data Transmission Protocols (Terms & Conditions)</a>.
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="w-full py-3 text-xl rounded-md cta-button">
-                    <i class="fas fa-paper-plane mr-2"></i> Transmit Enrollment Data
-                </button>
-            </form>
-
-        </div>
-    </main>
-
-    <!-- Footer (Dark, Secure Look) -->
-    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
-        <div class="container mx-auto px-4 text-center text-sm font-mono">
-            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
-        </div>
-    </footer>
-
-    
-    <!-- Alpine.js -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <script>
-        // =========================================================
-        // Network Graph Visualization (Connecting Dots)
-        // Simple particles moving and drawing lines to neighbors to simulate network traffic.
-        // =========================================================
-
-        const NetworkGraphVisualizer = (() => {
-            const container = document.getElementById('network-canvas');
-            const canvas = document.getElementById('network-canvas-drawing');
-            const ctx = canvas ? canvas.getContext('2d') : null;
-
-            if (!container || !ctx) return; 
-
-            // --- Constants and State ---
-            let width, height;
-            const NUM_PARTICLES = 70; // Number of dots
-            const CONNECTION_DISTANCE = 120; // Max distance for lines
-            const PARTICLE_SPEED = 0.4; // Max velocity component
-            const PARTICLE_COLOR = '#06b6d4'; // cyber-cyan
-            const particles = [];
-            
-            // --- Particle Class (Simple Structure) ---
-            class Particle {
-                constructor(x, y) {
-                    this.x = x;
-                    this.y = y;
-                    // Random small velocity
-                    this.vx = (Math.random() - 0.5) * PARTICLE_SPEED * 2;
-                    this.vy = (Math.random() - 0.5) * PARTICLE_SPEED * 2;
-                    this.radius = 1;
-                }
-
-                update() {
-                    // Move
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    // Boundary checks: bounce off walls
-                    if (this.x < 0 || this.x > width) {
-                        this.vx *= -1;
-                        // Keep within bounds
-                        this.x = Math.max(0, Math.min(width, this.x)); 
-                    }
-                    if (this.y < 0 || this.y > height) {
-                        this.vy *= -1;
-                        // Keep within bounds
-                        this.y = Math.max(0, Math.min(height, this.y));
-                    }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            // --- Utility Functions ---
-            const resizeCanvas = () => {
-                width = container.clientWidth;
-                height = container.clientHeight;
-                canvas.width = width;
-                canvas.height = height;
-            };
-            
-            // --- Initialization ---
-            const createParticles = () => {
-                particles.length = 0; // Clear existing
-                for (let i = 0; i < NUM_PARTICLES; i++) {
-                    // Spawn particles randomly across the screen
-                    const x = Math.random() * width;
-                    const y = Math.random() * height;
-                    particles.push(new Particle(x, y));
-                }
-            };
-            
-            // --- Drawing Logic ---
-            const drawFrame = () => {
-                // Dim the background to create very slight trails
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.05)'; 
-                ctx.fillRect(0, 0, width, height);
-                
-                // Set color and glow for particles/lines
-                ctx.strokeStyle = PARTICLE_COLOR;
-                ctx.fillStyle = PARTICLE_COLOR;
-                ctx.shadowColor = PARTICLE_COLOR;
-                ctx.shadowBlur = 5; 
-
-                // 1. Draw connections and update positions
-                for (let i = 0; i < particles.length; i++) {
-                    const p1 = particles[i];
-                    
-                    // Update position
-                    p1.update();
-
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const p2 = particles[j];
-                        
-                        const dx = p1.x - p2.x;
-                        const dy = p1.y - p2.y;
-                        // Calculate distance squared (faster than sqrt)
-                        const distSquared = dx * dx + dy * dy;
-                        const connectionDistSquared = CONNECTION_DISTANCE * CONNECTION_DISTANCE;
-
-                        if (distSquared < connectionDistSquared) {
-                            const dist = Math.sqrt(distSquared);
-                            // Calculate line opacity based on distance (closer = brighter)
-                            const opacity = 1 - (dist / CONNECTION_DISTANCE);
-                            ctx.globalAlpha = opacity * 0.5; // Max line opacity 50%
-                            ctx.lineWidth = 0.5;
-
-                            ctx.beginPath();
-                            ctx.moveTo(p1.x, p1.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-                
-                // Reset alpha and draw particles (dots)
-                ctx.globalAlpha = 1;
-                for (const p of particles) {
-                    p.draw();
-                }
-
-                ctx.shadowBlur = 0; // Reset shadow
-            };
-
-            // --- Main Loop ---
-            const animate = () => {
-                drawFrame();
-                requestAnimationFrame(animate);
-            };
-
-            // --- Initialization and Events ---
-            const init = () => {
-                // Initial resize and particle creation
-                resizeCanvas(); 
-                createParticles();
-
-                // Setup resize listener
-                window.addEventListener('resize', () => {
-                    resizeCanvas();
-                    // Re-initialize particles on resize to ensure proper placement/density
-                    createParticles(); 
-                });
-
-                animate();
-            };
-
-            return { init };
-        })();
-        
-        // ===========================================
-        // Document Ready Event Listener
-        // ===========================================
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the Visualizer
-            NetworkGraphVisualizer.init(); // <-- Changed from BinaryFlowVisualizer.init()
-
-            // Mobile Menu Toggle logic (kept as is)
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    const isExpanded = mobileMenu.classList.toggle('hidden');
-                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
-                });
-            }
-            
-            // Simple Fade-in-Up Animations (Card/Content)
-            const contentElements = document.querySelectorAll('.content-hidden');
-            contentElements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.classList.remove('content-hidden');
-                    el.classList.add('animate-fade-in-up');
-                }, 200 + index * 150); 
-            });
-        });
-    </script>
-        <script src="https://unpkg.com/@supabase/supabase-js"></script>
-<script>
-  // Your Supabase credentials
-  const SUPABASE_URL = "https://your-project-id.supabase.co";
-  const SUPABASE_KEY = "your-anon-public-key";
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // Handle form submission
-  document.querySelector("#enrollForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const name = document.querySelector("#name").value;
-    const email = document.querySelector("#email").value;
-    const course = document.querySelector("#course").value;
-    const phone = document.querySelector("#phone").value;
-
-    const { data, error } = await supabase
-      .from("enrollments")
-      .insert([{ name, email, course, phone }]);
-
-    if (error) {
-      alert("❌ Error saving data: " + error.message);
-    } else {
-      alert("✅ Enrollment successful!");
-      e.target.reset();
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f1f5f9;
+      font-family: "Inter", sans-serif;
     }
-  });
-</script>
+    .console-card {
+      background-color: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    }
+    .cta-button {
+      background-color: #06b6d4;
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+      transition: 0.3s;
+    }
+    .cta-button:hover {
+      background-color: #22d3ee;
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center">
+  <div class="w-full max-w-2xl console-card p-8 rounded-lg">
+    <h1 class="text-3xl font-extrabold text-center mb-6 text-cyan-400">
+      Enrollment Form
+    </h1>
+
+    <form id="enrollForm" class="space-y-6">
+      <!-- Full Name -->
+      <div>
+        <label for="full_name" class="block mb-1 text-sm">Full Name</label>
+        <input
+          type="text"
+          id="full_name"
+          name="full_name"
+          placeholder="Your Full Name"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email_id" class="block mb-1 text-sm">Email ID</label>
+        <input
+          type="email"
+          id="email_id"
+          name="email_id"
+          placeholder="you@example.com"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label for="phone" class="block mb-1 text-sm">Contact Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="9876543210"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        />
+      </div>
+
+      <!-- Course -->
+      <div>
+        <label for="course_track" class="block mb-1 text-sm"
+          >Course Track</label
+        >
+        <select
+          id="course_track"
+          name="course_track"
+          required
+          class="w-full px-3 py-2 rounded-md bg-slate-900 border border-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+        >
+          <option value="" disabled selected>-- Select Your Course --</option>
+          <option value="networking">Enterprise Networking (CCNP)</option>
+          <option value="cloud">Cloud Infrastructure (AWS/Azure)</option>
+          <option value="security">Cyber Security (CEH)</option>
+          <option value="internship">Professional Internship Program</option>
+        </select>
+      </div>
+
+      <!-- Agreement -->
+      <div class="flex items-start space-x-2">
+        <input
+          id="agreement"
+          name="agreement"
+          type="checkbox"
+          required
+          class="mt-1"
+        />
+        <label for="agreement" class="text-sm text-gray-300"
+          >I agree to the <a href="#" class="text-cyan-400 underline">Terms &
+          Conditions</a>.</label
+        >
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="w-full py-3 text-xl rounded-md cta-button"
+      >
+        <i class="fas fa-paper-plane mr-2"></i>Submit Enrollment
+      </button>
+    </form>
+  </div>
+
+  <!-- Supabase Integration -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script>
+    // Your Supabase credentials
+    const SUPABASE_URL = "https://slzzeqbmjrwshtdhwzxa.supabase.co"; // Replace this
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsenplcWJtanJ3c2h0ZGh3enhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTM5NTEsImV4cCI6MjA3Nzk4OTk1MX0.gt-TkAU_4mE9x1qd_ZO_wV6eGhGSLKjBjnLDh151-vA"; // Replace this
+    const { createClient } = supabase;
+    const supa = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Handle form submission
+    document.getElementById("enrollForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const full_name = document.getElementById("full_name").value;
+      const email_id = document.getElementById("email_id").value;
+      const course_track = document.getElementById("course_track").value;
+      const phone = document.getElementById("phone").value;
+
+      const { data, error } = await supa
+        .from("enrollments")
+        .insert([{ full_name, email_id, course_track, phone }]);
+
+      if (error) {
+        alert("❌ Error saving data: " + error.message);
+        console.error(error);
+      } else {
+        alert("✅ Enrollment Successful! Thank you for registering.");
+        e.target.reset();
+      }
+    });
+  </script>
 </body>
 </html>
