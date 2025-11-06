@@ -475,5 +475,33 @@
             });
         });
     </script>
+        <script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+  // Your Supabase credentials
+  const SUPABASE_URL = "https://your-project-id.supabase.co";
+  const SUPABASE_KEY = "your-anon-public-key";
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Handle form submission
+  document.querySelector("#enrollForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.querySelector("#name").value;
+    const email = document.querySelector("#email").value;
+    const course = document.querySelector("#course").value;
+    const phone = document.querySelector("#phone").value;
+
+    const { data, error } = await supabase
+      .from("enrollments")
+      .insert([{ name, email, course, phone }]);
+
+    if (error) {
+      alert("❌ Error saving data: " + error.message);
+    } else {
+      alert("✅ Enrollment successful!");
+      e.target.reset();
+    }
+  });
+</script>
 </body>
 </html>
