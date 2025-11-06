@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansbound Network School - Upcoming Batches</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Configure Tailwind for custom theme and font --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
+                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
+                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
+                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
+                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'neon-pulse': {
+                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
+                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
+                        },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Base Styles (Dark Mode) */
+        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
+        .content-hidden { opacity: 0; }
+        
+        /* Custom Scrollbar */
+        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
+        body::-webkit-scrollbar-track { background-color: #1e293b; }
+
+        /* Network Background Container */
+        .network-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -20;
+        }
+
+        /* Canvas element (for Animation) */
+        #network-canvas-drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.6; /* Slightly subdued background */
+        }
+        
+        /* Console Card Styling (Cyber look) */
+        .console-card {
+            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
+            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
+        }
+        
+        /* Call To Action Button (Cyan Glow) */
+        .cta-button {
+            background-color: var(--tw-colors-cyber-cyan);
+            color: var(--tw-colors-bg-dark);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .cta-button:hover {
+            background-color: #22d3ee; 
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Schedule Table Styling */
+        .schedule-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .schedule-table th, .schedule-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        .schedule-table th {
+            color: var(--tw-colors-cyber-cyan);
+            font-weight: 700;
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+        .schedule-table tr:hover {
+            background-color: rgba(6, 182, 212, 0.05);
+        }
+        .highlight-row {
+            border: 2px solid var(--tw-colors-cyber-amber);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        .highlight-row td {
+             color: var(--tw-colors-cyber-amber);
+             font-weight: 600;
+        }
+
+    </style>
+</head>
+<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+
+    <!-- Network Infrastructure Visualization Container -->
+    <div id="network-canvas" class="network-bg-canvas">
+        <canvas id="network-canvas-drawing"></canvas>
+    </div>
+
+    <!-- Header & Navigation Bar (Minimalist Dark) -->
+    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Logo & Company Name (Left Top) -->
+                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
+                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
+                        </div>
+                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
+                            SANSBOUND 
+                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Menu & CTA -->
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
+                            <!-- LINKS pointing to all pages -->
+                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
+                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Courses</a>
+                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Industrial Visit</a>
+                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan transition duration-300 text-cyber-cyan">Upcoming Batch</a>
+                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Internship</a>
+                            
+                            <!-- MORE DROPDOWN -->
+                            <div class="relative flex-shrink-0" @click.outside="open = false">
+                                <button @click="open = !open" 
+                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
+                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
+                                    <span>More</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                <!-- Dropdown Content -->
+                                <div x-show="open" 
+                                    x-transition:enter="ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95 transform"
+                                    x-transition:enter-end="opacity-100 scale-100 transform"
+                                    x-transition:leave="ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100 transform"
+                                    x-transition:leave-end="opacity-0 scale-95 transform"
+                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
+                                    style="display: none;">
+                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
+                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Enrollment Link (CTA Button) -->
+                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button">
+                            Enroll Now
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-cyber-cyan focus:outline-none" 
+                            aria-label="Toggle Menu"
+                            aria-expanded="false" 
+                            aria-controls="mobile-menu">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
+            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
+                <!-- MOBILE LINKS -->
+                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
+                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Courses</a>
+                <a href="industrial_visit.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Industrial Visit</a>
+                <a href="upcoming_batch.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50 bg-cyber-blue/20 text-cyber-cyan">Upcoming Batch</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Internship</a>
+
+                <!-- MOBILE MORE DROPDOWN -->
+                <div @click.outside="open = false">
+                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
+                        <span>More</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
+                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
+                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
+                    </div>
+                </div>
+
+                <a href="#" class="block px-3 py-2 rounded-md cta-button mt-4 text-center">Enroll Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Upcoming Batches) -->
+    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 flex-grow">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-16 console-card p-8 rounded-lg shadow-xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up">
+            <p class="text-cyber-cyan font-mono text-sm mb-3 uppercase tracking-widest animate-pulse">
+                > COURSE INTAKE SCHEDULING
+            </p>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-text-light mb-3 leading-tight">
+                Secure Your Seat in the Next Batch
+            </h1>
+            <p class="text-lg text-text-light/80 max-w-3xl mx-auto">
+                Our classes start soon. Enroll now to ensure you don't miss the opportunity to join the industry's most hands-on networking program.
+            </p>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="console-card p-4 sm:p-8 rounded-lg shadow-xl content-hidden animate-fade-in-up card-delay-1 overflow-x-auto">
+            <h2 class="text-2xl font-bold text-cyber-cyan mb-6">Upcoming Batch Schedule (Fall 2025)</h2>
+            <table class="schedule-table text-text-light">
+                <thead>
+                    <tr>
+                        <th class="w-1/4">Course Track</th>
+                        <th class="w-1/4">Start Date</th>
+                        <th class="w-1/4">Format</th>
+                        <th class="w-1/4">Seats Available</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-semibold">Enterprise Networking (CCNP)</td>
+                        <td>Sep 15, 2025</td>
+                        <td>Hybrid (Online + Lab Access)</td>
+                        <td class="text-cyber-cyan font-semibold">12</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td class="font-semibold">Cyber Security Track (CEH)</td>
+                        <td>Oct 10, 2025</td>
+                        <td>Offline (Physical Classroom)</td>
+                        <td class="text-cyber-amber font-semibold">LIMITED (5)</td>
+                    </tr>
+                    <tr>
+                        <td class="font-semibold">Cloud Infrastructure (AWS/Azure)</td>
+                        <td>Oct 25, 2025</td>
+                        <td>Online Live Classes</td>
+                        <td class="text-cyber-cyan font-semibold">18</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
+        <!-- Registration Details -->
+        <div class="mt-12 md:mt-16 console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-2">
+            <h2 class="text-2xl font-bold text-text-light mb-4 flex items-center space-x-3">
+                <i class="fas fa-terminal text-cyber-cyan"></i>
+                <span>Registration Command Center</span>
+            </h2>
+            <p class="text-text-light/80 mb-6">
+                To reserve your place, please click the button below. A representative will contact you within one network cycle (24 hours) to confirm your enrollment details.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <p class="text-sm font-mono text-cyber-cyan/70">
+                    > STATUS: REGISTRATION WINDOW OPEN
+                </p>
+                <a href="#" class="px-8 py-3 text-lg rounded-md cta-button">
+                    Initiate Secure Enrollment
+                </a>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- Footer (Dark, Secure Look) -->
+    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm font-mono">
+            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
+        </div>
+    </footer>
+
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+        // =========================================================
+        // Warp Speed Starfield / Tunnel Effect Visualization
+        // Stars/points move quickly outward from the center, creating forward momentum.
+        // =========================================================
+
+        const WarpSpeedVisualizer = (() => {
+            const container = document.getElementById('network-canvas');
+            const canvas = document.getElementById('network-canvas-drawing');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            if (!container || !ctx) return; 
+
+            // --- Constants and State ---
+            let width, height;
+            const STAR_COUNT = 350; // Increased count for higher density
+            const MAX_DEPTH = 300; 
+            const WARP_SPEED = 2.5; 
+            const STAR_COLOR = '#06b6d4'; 
+
+            let stars = [];
+
+            // --- Star Structure ---
+            const createStar = () => {
+                return {
+                    // Position relative to center (0, 0)
+                    x: (Math.random() - 0.5) * width * 1.5, // Start position outside view slightly
+                    y: (Math.random() - 0.5) * height * 1.5,
+                    z: Math.random() * MAX_DEPTH, // Z-depth (0 is nearest, MAX_DEPTH is farthest)
+                    size: Math.random() * 0.8 + 0.2
+                };
+            };
+
+            // --- Utility Functions ---
+            const resizeCanvas = () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                // Re-initialize stars on resize
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push(createStar());
+                }
+            };
+
+            // --- Drawing Logic ---
+            const drawFrame = () => {
+                // Clear the canvas with low opacity for trails/motion blur
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.4)'; 
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.shadowColor = STAR_COLOR;
+                ctx.fillStyle = STAR_COLOR;
+                
+                // Set the origin to the center for perspective
+                ctx.save();
+                ctx.translate(width / 2, height / 2);
+
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    const star = stars[i];
+
+                    // 1. Update Z-position (moving toward the viewer)
+                    star.z -= WARP_SPEED;
+
+                    // 2. Check boundary and reset if passed (creates continuous movement)
+                    if (star.z <= 0) {
+                        Object.assign(star, createStar());
+                        star.z = MAX_DEPTH; 
+                    }
+
+                    // 3. Calculate perspective projection
+                    const perspective = MAX_DEPTH / star.z;
+                    const screenX = star.x * perspective;
+                    const screenY = star.y * perspective;
+                    const size = star.size * perspective * 0.5; // Scaled size
+
+                    // 4. Draw the star (dot)
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+                    
+                    // Glow based on proximity (nearer stars glow brighter)
+                    ctx.globalAlpha = Math.min(1.0, 1 - (star.z / MAX_DEPTH) + 0.2); 
+                    ctx.shadowBlur = Math.max(5, size * 2);
+
+                    ctx.fill();
+                }
+                
+                ctx.restore(); // Restore context back to original (top-left origin)
+                ctx.shadowBlur = 0; 
+                ctx.globalAlpha = 1.0; 
+            };
+
+            // --- Main Loop ---
+            const animate = () => {
+                drawFrame();
+                requestAnimationFrame(animate);
+            };
+
+            // --- Initialization and Events ---
+            const init = () => {
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas(); 
+                animate();
+            };
+
+            return { init };
+        })();
+        
+        // ===========================================
+        // Document Ready Event Listener
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the Warp Speed Visualizer
+            WarpSpeedVisualizer.init();
+
+            // Mobile Menu Toggle logic (kept as is)
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isExpanded = mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+            
+            // Simple Fade-in-Up Animations (Card/Content)
+            const contentElements = document.querySelectorAll('.content-hidden');
+            contentElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.remove('content-hidden');
+                    el.classList.add('animate-fade-in-up');
+                }, 200 + index * 150); 
+            });
+        });
+    </script>
+</body>
+</html>

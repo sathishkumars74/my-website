@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansbound Network School - Course Catalog</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Configure Tailwind for custom theme and font --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
+                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
+                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
+                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
+                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'neon-pulse': {
+                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
+                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
+                        },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Base Styles (Dark Mode) */
+        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
+        .content-hidden { opacity: 0; }
+        
+        /* Custom Scrollbar */
+        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
+        body::-webkit-scrollbar-track { background-color: #1e293b; }
+
+        /* Network Background Container */
+        .network-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -20;
+        }
+
+        /* Canvas element (for Hex Grid and Data Stream) */
+        #network-canvas-drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.6; /* Slightly subdued background */
+        }
+        
+        /* Console Card Styling (Cyber look) */
+        .console-card {
+            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
+            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
+        }
+        
+        /* Call To Action Button (Cyan Glow) */
+        .cta-button {
+            background-color: var(--tw-colors-cyber-cyan);
+            color: var(--tw-colors-bg-dark);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .cta-button:hover {
+            background-color: #22d3ee; 
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Feature List Styling for Course Cards */
+        .feature-list li {
+            border-left: 3px solid var(--tw-colors-cyber-cyan);
+            background-color: rgba(6, 182, 212, 0.05);
+            transition: all 0.3s;
+        }
+        .feature-list li:hover {
+            background-color: rgba(6, 182, 212, 0.15);
+        }
+        
+        /* Custom card animation delays */
+        .card-delay-1 { animation-delay: 0.2s; }
+        .card-delay-2 { animation-delay: 0.4s; }
+        .card-delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+
+    <!-- Network Infrastructure Visualization Container -->
+    <div id="network-canvas" class="network-bg-canvas">
+        <canvas id="network-canvas-drawing"></canvas>
+    </div>
+
+    <!-- Header & Navigation Bar (Minimalist Dark) -->
+    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Logo & Company Name (Left Top) -->
+                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
+                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
+                        </div>
+                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
+                            SANSBOUND 
+                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Menu & CTA -->
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
+                            <!-- LINKS pointing to index.html and this courses.html -->
+                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
+                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan transition duration-300 text-cyber-cyan">Courses</a>
+                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Industrial Visit</a>
+                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Upcoming Batch</a>
+                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Internship</a>
+                            
+                            <!-- MORE DROPDOWN -->
+                            <div class="relative flex-shrink-0" @click.outside="open = false">
+                                <button @click="open = !open" 
+                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
+                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
+                                    <span>More</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                <!-- Dropdown Content -->
+                                <div x-show="open" 
+                                    x-transition:enter="ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95 transform"
+                                    x-transition:enter-end="opacity-100 scale-100 transform"
+                                    x-transition:leave="ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100 transform"
+                                    x-transition:leave-end="opacity-0 scale-95 transform"
+                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
+                                    style="display: none;">
+                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
+                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Enrollment Link (CTA Button) -->
+                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button">
+                            Enroll Now
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-cyber-cyan focus:outline-none" 
+                            aria-label="Toggle Menu"
+                            aria-expanded="false" 
+                            aria-controls="mobile-menu">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
+            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
+                <!-- MOBILE LINKS -->
+                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
+                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50 bg-cyber-blue/20 text-cyber-cyan">Courses</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Industrial Visit</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Upcoming Batch</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Internship</a>
+
+                <!-- MOBILE MORE DROPDOWN -->
+                <div @click.outside="open = false">
+                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
+                        <span>More</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
+                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
+                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
+                    </div>
+                </div>
+
+                <a href="#" class="block px-3 py-2 rounded-md cta-button mt-4 text-center">Enroll Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Course Catalog) -->
+    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 flex-grow">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-16 console-card p-8 rounded-lg shadow-xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up">
+            <p class="text-cyber-cyan font-mono text-sm mb-3 uppercase tracking-widest animate-pulse">
+                > COURSE CATALOG INITIATED
+            </p>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-text-light mb-3 leading-tight">
+                CERTIFICATION TRACKS
+            </h1>
+            <p class="text-lg text-text-light/80 max-w-3xl mx-auto">
+                Select your path to professional mastery. All courses feature **100% hands-on lab environments** and certification alignment.
+            </p>
+        </div>
+
+        <!-- Course Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Card 1: Enterprise Networking -->
+            <div class="console-card p-6 rounded-lg hover:shadow-2xl hover:shadow-cyber-cyan/30 transition duration-300 transform hover:scale-[1.02] content-hidden animate-fade-in-up card-delay-1">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-text-light mb-2 border-b border-cyber-cyan/20 pb-2">
+                    Enterprise Networking
+                </h2>
+                <p class="text-text-light/70 mb-4 text-sm">
+                    Master the foundational protocols and hardware from Cisco and Juniper. Build and manage complex corporate LANs and WANs from the ground up.
+                </p>
+                <ul class="space-y-2 text-sm text-text-light/90 feature-list">
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>CCNA & CCNP Focus</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>Real Cisco/Juniper Hardware</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>SDN/Automation Basics</span>
+                    </li>
+                </ul>
+                <a href="#" class="mt-6 inline-block w-full text-center py-2 text-sm rounded-md cta-button">
+                    View Networking Details
+                </a>
+            </div>
+
+            <!-- Card 2: Cloud Infrastructure & DevOps -->
+            <div class="console-card p-6 rounded-lg hover:shadow-2xl hover:shadow-cyber-cyan/30 transition duration-300 transform hover:scale-[1.02] content-hidden animate-fade-in-up card-delay-2">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-text-light mb-2 border-b border-cyber-cyan/20 pb-2">
+                    Cloud Infrastructure
+                </h2>
+                <p class="text-text-light/70 mb-4 text-sm">
+                    Become proficient in architecting and deploying solutions on AWS, Azure, and Google Cloud. Focus on automation and infrastructure as code (IaC).
+                </p>
+                <ul class="space-y-2 text-sm text-text-light/90 feature-list">
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>AWS Certified Solutions Architect</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>Terraform & Kubernetes</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>Cloud Networking & VPCs</span>
+                    </li>
+                </ul>
+                <a href="#" class="mt-6 inline-block w-full text-center py-2 text-sm rounded-md cta-button">
+                    View Cloud Details
+                </a>
+            </div>
+
+            <!-- Card 3: Cyber Security & Ethical Hacking -->
+            <div class="console-card p-6 rounded-lg hover:shadow-2xl hover:shadow-cyber-cyan/30 transition duration-300 transform hover:scale-[1.02] content-hidden animate-fade-in-up card-delay-3">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-text-light mb-2 border-b border-cyber-cyan/20 pb-2">
+                    Cyber Security Track
+                </h2>
+                <p class="text-text-light/70 mb-4 text-sm">
+                    Learn defensive and offensive security principles. Acquire skills in penetration testing, threat analysis, and incident response.
+                </p>
+                <ul class="space-y-2 text-sm text-text-light/90 feature-list">
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>Certified Ethical Hacker (CEH)</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>SIEM & Firewall Management</span>
+                    </li>
+                    <li class="p-2 flex items-center space-x-2 border-l-2 border-cyan-400/50">
+                        <i class="fas fa-check-circle text-cyan-400"></i><span>Threat Hunting Simulation</span>
+                    </li>
+                </ul>
+                <a href="#" class="mt-6 inline-block w-full text-center py-2 text-sm rounded-md cta-button">
+                    View Security Details
+                </a>
+            </div>
+        </div>
+
+        <!-- Secondary CTA -->
+        <div class="mt-20 text-center">
+             <p class="text-xl text-text-light mb-4">Ready to launch your career?</p>
+             <a href="#" class="inline-block px-8 py-3 text-lg rounded-md cta-button">
+                 Apply for the Upcoming Batch
+             </a>
+        </div>
+    </main>
+
+    <!-- Footer (Dark, Secure Look) -->
+    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm font-mono">
+            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
+        </div>
+    </footer>
+
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+        // =========================================================
+        // Network Infrastructure Visualization (Hex Grid and Data Flow)
+        // =========================================================
+
+        const NetworkVisualizer = (() => {
+            const container = document.getElementById('network-canvas');
+            const canvas = document.getElementById('network-canvas-drawing');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            if (!container || !ctx) return; 
+
+            // --- Constants and State ---
+            let width, height;
+            let globalTime = 0;
+            
+            // Hex Grid Properties
+            const HEX_SIZE = 60;
+            const HEX_COLOR = 'rgba(6, 182, 212, 0.03)'; // Very faint cyan
+            const HEX_STROKE = 1;
+            
+            // Fixed conceptual nodes (X/Y are in viewport percentage units for relative positioning)
+            // We use fixed locations here since the nodes are purely visual and don't need to be DOM elements.
+            const NODES = [
+                { id: 'A', x: 15, y: 15, weight: 1.0 },
+                { id: 'B', x: 85, y: 30, weight: 0.8 },
+                { id: 'C', x: 50, y: 55, weight: 1.2 }, // Central Hub
+                { id: 'D', x: 20, y: 80, weight: 0.6 },
+                { id: 'E', x: 80, y: 90, weight: 0.9 },
+            ];
+
+            const CONNECTIONS = [
+                { source: 'A', target: 'C', speed: 0.0003, weight: 1.5 },
+                { source: 'B', target: 'C', speed: 0.00025, weight: 1.2 },
+                { source: 'C', target: 'D', speed: 0.0004, weight: 0.9 },
+                { source: 'C', target: 'E', speed: 0.00035, weight: 1.0 },
+                { source: 'A', target: 'E', speed: 0.0002, weight: 0.7 },
+            ];
+
+            // Map node ID to their actual pixel coordinates
+            const nodePositions = {};
+            
+            // --- Utility Functions ---
+
+            const resizeCanvas = () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                // Calculate and store pixel positions based on viewport percentage
+                NODES.forEach(n => {
+                    nodePositions[n.id] = {
+                        x: (n.x / 100) * width,
+                        y: (n.y / 100) * height,
+                        weight: n.weight 
+                    };
+                });
+            };
+
+            // --- Hex Grid Drawing ---
+            const drawHexGrid = () => {
+                const h = HEX_SIZE * Math.sqrt(3) / 2; // Hex height
+                const w = HEX_SIZE * 1.5; // Hex width
+
+                ctx.strokeStyle = HEX_COLOR;
+                ctx.lineWidth = HEX_STROKE;
+                ctx.globalAlpha = 1.0;
+
+                for (let x = -HEX_SIZE; x < width + HEX_SIZE * 2; x += w) {
+                    for (let y = -HEX_SIZE; y < height + HEX_SIZE * 2; y += h * 2) {
+                        
+                        // Shift every other column
+                        const yOffset = (Math.floor(x / w) % 2 !== 0) ? h : 0;
+                        
+                        // Draw two hexagons per grid position (top and bottom)
+                        drawHex(x, y + yOffset);
+                        drawHex(x, y + yOffset + h);
+                    }
+                }
+            };
+
+            const drawHex = (x, y) => {
+                const h = HEX_SIZE * Math.sqrt(3) / 2;
+                ctx.beginPath();
+                ctx.moveTo(x + HEX_SIZE, y);
+                ctx.lineTo(x + HEX_SIZE * 0.5, y + h);
+                ctx.lineTo(x - HEX_SIZE * 0.5, y + h);
+                ctx.lineTo(x - HEX_SIZE, y);
+                ctx.lineTo(x - HEX_SIZE * 0.5, y - h);
+                ctx.lineTo(x + HEX_SIZE * 0.5, y - h);
+                ctx.closePath();
+                ctx.stroke();
+            };
+
+            // --- Canvas Drawing (Lines and Data Stream) ---
+            const drawConnectionsCanvas = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.lineCap = 'round';
+                
+                // 1. Draw Hex Grid first
+                drawHexGrid();
+                
+                // 2. Draw Connections and Data Stream
+                CONNECTIONS.forEach(conn => {
+                    const sourcePos = nodePositions[conn.source];
+                    const targetPos = nodePositions[conn.target];
+                    
+                    if (!sourcePos || !targetPos) return;
+                    
+                    const thickness = 1.0 + conn.weight * 0.5;
+                    const dx = targetPos.x - sourcePos.x;
+                    const dy = targetPos.y - sourcePos.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // A. Draw Static Connection Glow (The base wire)
+                    ctx.beginPath();
+                    ctx.moveTo(sourcePos.x, sourcePos.y);
+                    ctx.lineTo(targetPos.x, targetPos.y);
+                    
+                    ctx.strokeStyle = `rgba(6, 182, 212, ${0.1 + conn.weight * 0.1})`;
+                    ctx.lineWidth = thickness;
+                    ctx.shadowColor = '#06b6d4';
+                    ctx.shadowBlur = 4;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // Reset shadow
+
+                    // B. Draw Animated Data Stream (Packets)
+                    const speed = conn.speed * 1.5;
+                    const numPackets = Math.floor(distance / 40);
+                    
+                    for (let i = 0; i < numPackets; i++) {
+                        // Calculate position along the line based on global time
+                        const offset = (globalTime * speed + (i / numPackets)) % 1;
+                        const px = sourcePos.x + dx * offset;
+                        const py = sourcePos.y + dy * offset;
+
+                        // Draw packet/dot
+                        ctx.fillStyle = `rgba(6, 182, 212, ${0.8 + conn.weight * 0.2})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 1.5 + conn.weight * 0.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                // 3. Draw Nodes (Simple glowing circles)
+                NODES.forEach(n => {
+                    const pos = nodePositions[n.id];
+                    ctx.fillStyle = '#1e40af'; // cyber-blue
+                    ctx.shadowColor = '#06b6d4';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 7 + n.weight * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    
+                    // Inner cyan pulse (using animation keyframes would be better, but we do it with JS time here)
+                    const pulse = Math.sin(globalTime * 0.005 + n.x) * 0.3 + 0.7; 
+                    ctx.fillStyle = `rgba(6, 182, 212, ${pulse})`; // cyber-cyan
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 4 + n.weight * 1, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            };
+
+
+            // --- Main Loop ---
+            let lastTimestamp = 0;
+            const animate = (timestamp) => {
+                const deltaTime = timestamp - lastTimestamp;
+                lastTimestamp = timestamp;
+
+                globalTime += deltaTime;
+                
+                // Canvas Drawing (Hex Grid, Lines, and Data Streams)
+                drawConnectionsCanvas();
+                
+                // Re-queue next frame
+                requestAnimationFrame(animate);
+            };
+
+            // --- Initialization and Events ---
+            const init = () => {
+                // Set up event listener for resizing
+                window.addEventListener('resize', resizeCanvas);
+                
+                // Initial size and positioning setup
+                resizeCanvas();
+                
+                // Start the main animation loop
+                requestAnimationFrame(animate);
+            };
+
+            return { init };
+        })();
+
+        // ===========================================
+        // Document Ready Event Listener
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the new Network Visualizer
+            NetworkVisualizer.init();
+
+            // Mobile Menu Toggle logic (kept as is)
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isExpanded = mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+            
+            // Simple Fade-in-Up Animations (Course Cards) (kept as is)
+            const cards = document.querySelectorAll('.content-hidden');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.remove('content-hidden');
+                    card.classList.add('animate-fade-in-up');
+                }, 200 + index * 150); 
+            });
+        });
+    </script>
+</body>
+</html>

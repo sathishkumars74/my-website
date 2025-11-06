@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansbound Network School - Industrial Visit</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Configure Tailwind for custom theme and font --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#0f172a', // Deep Space Navy/Slate-900
+                        'cyber-cyan': '#06b6d4', // Electric Cyan (Transmission/Success)
+                        'cyber-blue': '#1e40af', // Strong Dark Blue (Infrastructure)
+                        'cyber-amber': '#f59e0b', // Amber/Orange (Warning/Security)
+                        'text-light': '#f1f5f9', // Light Slate (Off-White Text)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'neon-pulse': 'neon-pulse 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'neon-pulse': {
+                            '0%': { filter: 'drop-shadow(0 0 1px #06b6d4) drop-shadow(0 0 4px #06b6d4)', opacity: '0.8' },
+                            '100%': { filter: 'drop-shadow(0 0 0px #06b6d4) drop-shadow(0 0 10px #06b6d4)', opacity: '1' },
+                        },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        /* Base Styles (Dark Mode) */
+        html, body { height: 100%; background-color: var(--tw-colors-bg-dark); }
+        .content-hidden { opacity: 0; }
+        
+        /* Custom Scrollbar */
+        body { scrollbar-width: thin; scrollbar-color: #06b6d4 #1e293b; }
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 4px; }
+        body::-webkit-scrollbar-track { background-color: #1e293b; }
+
+        /* Network Background Container */
+        .network-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -20;
+        }
+
+        /* Canvas element (for Digital Rain) */
+        #network-canvas-drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.6; /* Slightly subdued background */
+        }
+        
+        /* Console Card Styling (Cyber look) */
+        .console-card {
+            background-color: rgba(30, 41, 59, 0.9); /* Darker Slate */
+            border: 1px solid rgba(6, 182, 212, 0.2); /* Cyan border */
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); /* Subtle cyan glow */
+        }
+        
+        /* Call To Action Button (Cyan Glow) */
+        .cta-button {
+            background-color: var(--tw-colors-cyber-cyan);
+            color: var(--tw-colors-bg-dark);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .cta-button:hover {
+            background-color: #22d3ee; 
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* Feature List Styling for Course Cards */
+        .feature-list li {
+            border-left: 3px solid var(--tw-colors-cyber-cyan);
+            background-color: rgba(6, 182, 212, 0.05);
+            transition: all 0.3s;
+        }
+        .feature-list li:hover {
+            background-color: rgba(6, 182, 212, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-bg-dark font-sans min-h-screen flex flex-col text-text-light">
+
+    <!-- Network Infrastructure Visualization Container -->
+    <div id="network-canvas" class="network-bg-canvas">
+        <canvas id="network-canvas-drawing"></canvas>
+    </div>
+
+    <!-- Header & Navigation Bar (Minimalist Dark) -->
+    <header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur-sm border-b border-cyber-cyan/30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Logo & Company Name (Left Top) -->
+                    <div id="logo-branding" class="flex items-center space-x-2 transition duration-300">
+                        <div class="flex items-center justify-center w-10 h-10 bg-cyber-cyan/10 rounded-full border border-cyber-cyan/50 p-1">
+                            <i class="fas fa-network-wired text-xl text-cyber-cyan"></i>
+                        </div>
+                        <a href="index.html" class="text-2xl font-black text-text-light tracking-widest leading-none">
+                            SANSBOUND 
+                            <span class="block text-base font-medium text-cyber-cyan leading-none">The Network School</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Menu & CTA -->
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        <nav class="hidden lg:flex items-center font-medium space-x-4 text-text-light">
+                            <!-- LINKS pointing to all pages -->
+                            <a href="index.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Home</a>
+                            <a href="courses.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Courses</a>
+                            <a href="industrial_visit.html" class="px-3 py-2 border-b-2 border-cyber-cyan transition duration-300 text-cyber-cyan">Industrial Visit</a>
+                            <a href="upcoming_batch.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Upcoming Batch</a>
+                            <a href="internship.html" class="px-3 py-2 border-b-2 border-cyber-cyan/0 hover:border-cyber-cyan transition duration-300">Internship</a>
+                            
+                            <!-- MORE DROPDOWN -->
+                            <div class="relative flex-shrink-0" @click.outside="open = false">
+                                <button @click="open = !open" 
+                                        class="px-3 py-2 rounded-md flex items-center space-x-1 font-medium transition duration-300 border-b-2"
+                                        :class="open ? 'border-cyber-cyan text-cyber-cyan' : 'border-cyber-cyan/0 hover:border-cyber-cyan'">
+                                    <span>More</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                <!-- Dropdown Content -->
+                                <div x-show="open" 
+                                    x-transition:enter="ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95 transform"
+                                    x-transition:enter-end="opacity-100 scale-100 transform"
+                                    x-transition:leave="ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100 transform"
+                                    x-transition:leave-end="opacity-0 scale-95 transform"
+                                    class="dropdown-menu absolute right-0 mt-3 w-40 rounded-lg shadow-xl bg-slate-800 border border-cyber-cyan/50 py-1"
+                                    style="display: none;">
+                                    <a href="contact_us.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Contact Us</a>
+                                    <a href="team.html" class="block px-4 py-2 text-sm text-text-light/80 hover:bg-cyber-blue hover:text-cyber-cyan rounded-md transition duration-150">Team</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Enrollment Link (CTA Button) -->
+                        <a href="enroll.html" class="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm rounded-md cta-button">
+                            Enroll Now
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-cyber-cyan focus:outline-none" 
+                            aria-label="Toggle Menu"
+                            aria-expanded="false" 
+                            aria-controls="mobile-menu">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-bg-dark/95 border-t border-cyber-cyan/30" x-data="{ open: false }">
+            <div class="px-4 pt-2 pb-3 space-y-1 text-text-light">
+                <!-- MOBILE LINKS -->
+                <a href="index.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Home</a>
+                <a href="courses.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Courses</a>
+                <a href="industrial_visit.html" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50 bg-cyber-blue/20 text-cyber-cyan">Industrial Visit</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Upcoming Batch</a>
+                <a href="#" class="block px-3 py-2 rounded-md font-medium hover:bg-cyber-blue/50">Internship</a>
+
+                <!-- MOBILE MORE DROPDOWN -->
+                <div @click.outside="open = false">
+                    <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-cyber-blue/50 transition duration-150 text-left">
+                        <span>More</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open, 'rotate-0': !open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" class="pl-6 pt-1 pb-1 space-y-1" style="display: none;">
+                        <a href="contact_us.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Contact Us</a>
+                        <a href="team.html" class="block px-3 py-1 rounded-md text-sm font-medium hover:bg-cyber-blue/50">Team</a>
+                    </div>
+                </div>
+
+                <a href="#" class="block px-3 py-2 rounded-md cta-button mt-4 text-center">Enroll Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Industrial Visit Details) -->
+    <main id="main-content" class="container mx-auto px-4 py-16 sm:py-24 flex-grow">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-16 console-card p-8 rounded-lg shadow-xl shadow-cyber-cyan/10 content-hidden animate-fade-in-up">
+            <p class="text-cyber-cyan font-mono text-sm mb-3 uppercase tracking-widest animate-pulse">
+                > INDUSTRIAL EXPERIENCE INITIATED
+            </p>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-text-light mb-3 leading-tight">
+                Step Inside the Live Network
+            </h1>
+            <p class="text-lg text-text-light/80 max-w-3xl mx-auto">
+                Our industrial visit program bridges the gap between lab theory and real-world deployment, giving you exposure to operational data centers and enterprise network environments.
+            </p>
+        </div>
+
+        <!-- Benefits Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Benefit 1: Data Center Access -->
+            <div class="console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-1">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h2 class="text-xl font-bold text-text-light mb-3">
+                    Live Data Center Access
+                </h2>
+                <p class="text-text-light/70 text-sm">
+                    See high-density rack setups, cooling infrastructure, and power redundancy in action—the heart of enterprise networking.
+                </p>
+            </div>
+
+            <!-- Benefit 2: Industry Mentorship -->
+            <div class="console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-2">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h2 class="text-xl font-bold text-text-light mb-3">
+                    Meet Industry Experts
+                </h2>
+                <p class="text-text-light/70 text-sm">
+                    Interact directly with seasoned network engineers and security professionals who manage mission-critical systems daily.
+                </p>
+            </div>
+
+            <!-- Benefit 3: Deployment Exposure -->
+            <div class="console-card p-6 rounded-lg shadow-md content-hidden animate-fade-in-up card-delay-3">
+                <div class="text-5xl mb-4 text-cyber-cyan">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h2 class="text-xl font-bold text-text-light mb-3">
+                    Real-World Deployment
+                </h2>
+                <p class="text-text-light/70 text-sm">
+                    Understand the logistics of scaling network topology, dealing with live traffic, and executing zero-downtime upgrades.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Secondary CTA -->
+        <div class="mt-20 text-center">
+             <p class="text-xl text-text-light mb-4">Ready to secure your spot in the next industrial visit?</p>
+             <a href="#" class="inline-block px-8 py-3 text-lg rounded-md cta-button">
+                 Request Visit Schedule
+             </a>
+        </div>
+    </main>
+
+    <!-- Footer (Dark, Secure Look) -->
+    <footer class="bg-bg-dark/80 backdrop-blur-sm text-text-light/50 py-6 border-t border-cyber-blue/50 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm font-mono">
+            // STATUS 2025: SANSBOUND NETWORK SCHOOL - SYSTEM SECURED.
+        </div>
+    </footer>
+
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+        // =========================================================
+        // Bouncing Network Signal (Ping/Tracer) Visualization
+        // (Fast-moving particles with trails that bounce off walls)
+        // =========================================================
+
+        const BouncingSignalVisualizer = (() => {
+            const container = document.getElementById('network-canvas');
+            const canvas = document.getElementById('network-canvas-drawing');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            if (!container || !ctx) return; 
+
+            // --- Constants and State ---
+            let width, height;
+            const PARTICLE_COUNT = 15; // Fewer, faster particles
+            const BASE_SPEED = 2; // Starting speed
+            const PARTICLE_COLOR = '#06b6d4'; 
+
+            let signals = [];
+
+            // --- Signal (Particle) Structure ---
+            const createSignal = () => {
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: 3 + Math.random() * 2, // Larger radius
+                    // Initial velocity (ensuring a minimum speed)
+                    vx: (Math.random() > 0.5 ? 1 : -1) * (BASE_SPEED * (0.5 + Math.random() * 0.5)),
+                    vy: (Math.random() > 0.5 ? 1 : -1) * (BASE_SPEED * (0.5 + Math.random() * 0.5)),
+                };
+            };
+
+            // --- Utility Functions ---
+            const resizeCanvas = () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                // Re-initialize particles on resize
+                signals = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    signals.push(createSignal());
+                }
+            };
+
+            // --- Drawing Logic ---
+            const drawFrame = () => {
+                // Clear background with low opacity to create fading trails
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.2)'; 
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.shadowColor = PARTICLE_COLOR;
+
+                for (let i = 0; i < signals.length; i++) {
+                    const p = signals[i];
+
+                    // 1. Update Position
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // 2. Wall Collision (Bounce)
+                    if (p.x + p.radius > width || p.x - p.radius < 0) {
+                        p.vx *= -1;
+                        // Nudge back inside to prevent sticking
+                        p.x = Math.max(p.radius, Math.min(width - p.radius, p.x));
+                    }
+                    if (p.y + p.radius > height || p.y - p.radius < 0) {
+                        p.vy *= -1;
+                        p.y = Math.max(p.radius, Math.min(height - p.radius, p.y));
+                    }
+
+                    // 3. Draw Signal (Dot)
+                    ctx.fillStyle = PARTICLE_COLOR;
+                    ctx.globalAlpha = 1.0; 
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    
+                    // Add strong glow/pulse effect
+                    ctx.shadowBlur = 15;
+                    ctx.fill();
+                    ctx.shadowBlur = 0; 
+                }
+            };
+
+            // --- Main Loop ---
+            const animate = () => {
+                drawFrame();
+                requestAnimationFrame(animate);
+            };
+
+            // --- Initialization and Events ---
+            const init = () => {
+                window.addEventListener('resize', resizeCanvas);
+                // Initial setup and start
+                resizeCanvas(); 
+                animate();
+            };
+
+            return { init };
+        })();
+        
+        // ===========================================
+        // Document Ready Event Listener
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the Bouncing Signal Visualizer
+            BouncingSignalVisualizer.init();
+
+            // Mobile Menu Toggle logic (kept as is)
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isExpanded = mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+                });
+            }
+            
+            // Simple Fade-in-Up Animations (Card/Content)
+            const contentElements = document.querySelectorAll('.content-hidden');
+            contentElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.remove('content-hidden');
+                    el.classList.add('animate-fade-in-up');
+                }, 200 + index * 150); 
+            });
+        });
+    </script>
+</body>
+</html>
